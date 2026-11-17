@@ -1,0 +1,13 @@
+# Local/self-hosted stack: app + Postgres. Copy .env.example to .env first.
+services:
+  db:
+    image: postgres:16
+    environment: { POSTGRES_USER: crm, POSTGRES_PASSWORD: crm, POSTGRES_DB: crm }
+    volumes: [pgdata:/var/lib/postgresql/data]
+  app:
+    build: .
+    env_file: .env
+    environment: { DATABASE_URL: "postgresql+psycopg://crm:crm@db:5432/crm" }
+    ports: ["8000:8000"]
+    depends_on: [db]
+volumes: { pgdata: {} }
