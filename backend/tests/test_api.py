@@ -67,3 +67,15 @@ def test_auth_disabled_mode(c, monkeypatch):
     monkeypatch.setattr(settings, "auth_disabled", True)
     assert c.get("/api/auth/me").json()["is_admin"] is True
     assert c.post("/api/deals", json={"title": "x"}).status_code == 201
+
+
+def test_startup_validation():
+    import pytest
+    from app.config import Settings
+    with pytest.raises(RuntimeError):
+        Settings(auth_disabled=False, dev_auth=False, okta_issuer="").validate_for_startup()
+    with pytest.raises(RuntimeError):
+        Settings(dev_auth=False, okta_issuer="https://x", okta_client_id="a", okta_client_secret="b").validate_for_startup()
+    Settings(dev_auth=False, okta_issuer="https://x", okta_client_id="a", okta_client_secret="b", secret_key="k" * 32).validate_for_startup()
+    Settings(auth_disabled=True).validate_for_startup()
+    assert Settings(database_url="postgres://u:p@h/db").database_url.startswith("postgresql+psycopg://")

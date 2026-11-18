@@ -10,6 +10,7 @@ from .config import settings
 from .db import Base, engine
 from .routes import router
 
+settings.validate_for_startup()
 Base.metadata.create_all(engine)  # swap for Alembic migrations once the schema stabilises
 
 app = FastAPI(title="CRM")
